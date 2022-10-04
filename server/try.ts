@@ -1,3 +1,4 @@
+import { type } from "os";
 import ControlTower from "./ControlTower";
 import Flight from "./models/Flight.model";
 
@@ -14,4 +15,4 @@ control.getFlight(new Flight(8, 5, false, 'El-Al', true));
 control.getFlight(new Flight(9, 5, false, 'El-Al', true));
 control.getFlight(new Flight(10, 5, false, 'El-Al', true));
 
-control.theLog()
+control.theLog();

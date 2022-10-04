@@ -3,7 +3,7 @@ class Flight {
     passengersCount: number;
     isCritical: boolean;
     brand: string;
-    currentLeg: number;
+    currentLeg: number; // -1: before it came, number.NAN after it left
     isDeparture: boolean;
     timeChanged: Date
 

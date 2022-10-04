@@ -1,59 +1,24 @@
 import Flight from './models/Flight.model'
-import config from './config'
+import config from './config.json'
+
 
 class ControlTower {
 
     isWorking = false;
-    departureTerminals: number[] = [4, 5];
-    trackId = 3;
+    legs: Flight[] | null[] = [];
+    queues: Flight[][] = []
 
-    oldLegs: boolean[] = [
-        // departure track: 5/6 -> 7 -> 3
-        // landing track: 0 -> 1 -> 2 -> 3 -> 4 -> 5/6
+    constructor() {
+        // TODO: make it initialize legs and queues by himself
+        this.legs.length = config.trackDesign.numOfLegs;
+        this.queues.length = config.trackDesign.numOfLegs;
+        for (let i = 0; i < this.queues.length; i++) {
+            this.queues[i] = [];
+        }
+    }
 
-        // if true - leg is available
-        true, // - for landing
-        true, // - for landing
-        true, // - for landing
-        true, // - flying track
-        true, // - driving track
-        true, // - terminal
-        true, // - terminal
-        true, // - driving track
-    ]
-    legs: Flight[] | null[] = [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null
-    ]
-    timeInLeg: number[] = [
-        /*0*/ 1,
-        /*1*/ 1,
-        /*2*/ 1,
-        /*3*/ 3,
-        /*4*/ 2,
-        /*5*/ 3,
-        /*6*/ 3,
-        /*7*/ 2
-    ]
-    queues: Flight[][] = [
-        [],
-        [],
-        [],
-        [],
-        [],
-        [],
-        [],
-        []
-    ]
-
-
-    // async manage() {
+    
+    // async manage() { //TODO
     //     console.log('entered interval');
 
     //     const interval = setInterval(() => {
@@ -71,19 +36,21 @@ class ControlTower {
 
     // }
 
-    moveFlight(flight: Flight) {
-        let prevIndex = flight.currentLeg;
+    moveFlight(flight: Flight) { // TODO
+        // let prevIndex = flight.currentLeg;
         flight.timeChanged = new Date();
-        this.legs[prevIndex] = null;
-        if (this.trackId === flight.currentLeg) {
-            if (flight.isDeparture) {
-
-            }
+        this.legs[flight.currentLeg] = null;
+        if (flight.currentLeg === config.trackDesign.track && flight.isDeparture) {
+            flight.currentLeg = Number.NaN;
+        } else if (flight.currentLeg === config.trackDesign.wayToTerminal) {
+            
+        } else if (flight.currentLeg === 0 ) {
+            //in terminal, if landing number.nan, if 
         }
-        this.legs[flight.currentLeg] = flight;
-
+        // this.legs[++flight.currentLeg] = flight;
     }
 
+    //TODO this only for testing, remove when api is ready
     theLog() {
         console.log('legs:');
         console.table(this.legs);
@@ -91,25 +58,8 @@ class ControlTower {
         console.log(this.queues);
     }
 
-    // departureTrack(flight: Flight) {
-    //     let availableTerminal = this.departureTerminals.find(t => {
-    //         if (this.legs[t])
-    //             return t;
-    //     });
-    //     if (availableTerminal) {
-    //         this.legs[availableTerminal] = false;
-    //         flight.currentLeg = availableTerminal;
-    //         console.log(`flight ${flight.flightID} moved to leg ${flight.currentLeg}`);
-
-    //     } else {
-    //         let mostAvailableSlot = this.departureTerminals.map(t => this.queues[t].length).sort()[0];
-    //         let index = this.departureTerminals.find(t => this.queues[t].length == mostAvailableSlot) || this.departureTerminals[0];
-    //         this.queues[index].push(flight);
-    //     }
-    // }
-
-    departureTrack(flight: Flight) {
-        let availableTerminal = this.departureTerminals.find(t => {
+    moveToTerminal(flight: Flight) {
+        let availableTerminal = config.trackDesign.terminals.find(t => {
             if (!this.legs[t])
                 return t;
         });
@@ -120,22 +70,11 @@ class ControlTower {
             console.log(`flight ${flight.flightID} moved to leg ${flight.currentLeg}`);
 
         } else {
-            let mostAvailableSlot = this.departureTerminals.map(t => this.queues[t].length).sort()[0];
-            let index = this.departureTerminals.find(t => this.queues[t].length === mostAvailableSlot) || this.departureTerminals[0];
+            let mostAvailableSlot = config.trackDesign.terminals.map(t => this.queues[t].length).sort()[0];
+            let index = config.trackDesign.terminals.find(t => this.queues[t].length === mostAvailableSlot) || config.trackDesign.terminals[0];
             this.queues[index].push(flight);
         }
     }
-
-    // landTrack(flight: Flight) {
-    //     if (this.legs[0]) {
-    //         this.legs[0] = false;
-    //         flight.currentLeg = 0;
-    //         console.log(`flight ${flight.flightID} moved to leg ${flight.currentLeg}`);
-
-    //     } else {
-    //         this.queues[0].push(flight);
-    //     }
-    // }
 
     landTrack(flight: Flight) {
         if (!this.legs[0]) {
@@ -149,14 +88,14 @@ class ControlTower {
         }
     }
 
-
     getFlight(flight: Flight) {
+        //TODO
         // if (!this.isWorking) {
         // this.isWorking = true;
         // this.manage();
         // }
         if (flight.isDeparture) {
-            this.departureTrack(flight);
+            this.moveToTerminal(flight);
         } else {
             this.landTrack(flight);
         }
