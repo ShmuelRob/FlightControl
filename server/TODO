@@ -1,15 +1,8 @@
 TODO:
 
-1. redesign the project, think what to do and how, write everything -
-   think how to design the services, the logic, the API etc.
+1. think how to connect to database, what to write there - maybe 1 entity of flight datails and one entity for the log (from, to, time).
 
-3. make everything able to get from the config, and then in the constructor make option to umplement legs and queues by loops, push defaults to them
+2. think how to get the flights from external api
 
-2. think how to connect to database, what to write there - maybe 1 entity of flight datails and one entity for the log (from, to, time).
-
-
-3. think how to get the flights from external api
-
-4. think what to do in the UI
-
+3. think what to do in the UI
 

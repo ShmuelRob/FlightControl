@@ -9,10 +9,8 @@
         ],
         "track": 3,
         "wayToTerminal": 4,
-        "terminals": [
-            5,
-            6
-        ],
+        "landingTerminal": 5,
+        "departureTerminal": 6,
         "wayToTrack": 7,
         "timeInLeg": [
             1,

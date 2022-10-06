@@ -1,53 +1,18 @@
 import Flight from './models/Flight.model'
 import config from './config.json'
 
-
 class ControlTower {
 
-    isWorking = false;
+    isWorking: boolean = false;
     legs: Flight[] | null[] = [];
     queues: Flight[][] = []
 
     constructor() {
-        // TODO: make it initialize legs and queues by himself
         this.legs.length = config.trackDesign.numOfLegs;
         this.queues.length = config.trackDesign.numOfLegs;
         for (let i = 0; i < this.queues.length; i++) {
             this.queues[i] = [];
         }
-    }
-
-    
-    // async manage() { //TODO
-    //     console.log('entered interval');
-
-    //     const interval = setInterval(() => {
-    //         if (!this.isWorking) {
-    //             console.log('out of interval');
-    //             clearInterval(interval);
-    //         }
-    //         if (this.legs.some(l => !l)) {
-    //             this.moveFlights();
-    //         } else {
-    //             this.isWorking = false;
-    //             return;
-    //         }
-    //     }, 300);
-
-    // }
-
-    moveFlight(flight: Flight) { // TODO
-        // let prevIndex = flight.currentLeg;
-        flight.timeChanged = new Date();
-        this.legs[flight.currentLeg] = null;
-        if (flight.currentLeg === config.trackDesign.track && flight.isDeparture) {
-            flight.currentLeg = Number.NaN;
-        } else if (flight.currentLeg === config.trackDesign.wayToTerminal) {
-            
-        } else if (flight.currentLeg === 0 ) {
-            //in terminal, if landing number.nan, if 
-        }
-        // this.legs[++flight.currentLeg] = flight;
     }
 
     //TODO this only for testing, remove when api is ready
@@ -58,46 +23,123 @@ class ControlTower {
         console.log(this.queues);
     }
 
-    moveToTerminal(flight: Flight) {
-        let availableTerminal = config.trackDesign.terminals.find(t => {
-            if (!this.legs[t])
-                return t;
-        });
-        if (availableTerminal) {
-            this.legs[availableTerminal] = flight;
-            flight.currentLeg = availableTerminal;
-            flight.timeChanged = new Date();
-            console.log(`flight ${flight.flightID} moved to leg ${flight.currentLeg}`);
+    waitFlightTime(flight: Flight) {
+        return new Promise((resolve, reject) => {
+            if (flight.currentLeg == -1) {
+                resolve(true);
+            } else {
+                setTimeout(() => {
+                    resolve(true);
+                }, config.trackDesign.timeInLeg[flight.currentLeg]);
+            }
+        })
+    }
+ 
+    getNextLeg(flight: Flight) {
+        switch (flight.currentLeg) {
+            case config.trackDesign.wayToTerminal:
+                return config.trackDesign.landingTerminal;
+            case config.trackDesign.landingTerminal:
+                return Number.NaN;
+            case config.trackDesign.departureTerminal:
+                return config.trackDesign.wayToTrack;
+            case config.trackDesign.wayToTrack:
+                return config.trackDesign.track;
+            case config.trackDesign.track:
+                if (flight.isDeparture) {
+                    return Number.NaN;
+                }
+            default:
+                return flight.currentLeg + 1;
+        }
 
+        // if (flight.currentLeg === config.trackDesign.track && flight.isDeparture) {
+        //     return Number.NaN;
+        // } else if (flight.currentLeg === config.trackDesign.wayToTerminal) {
+        //     return config.trackDesign.landingTerminal;
+        // } else if (flight.currentLeg === config.trackDesign.landingTerminal) {
+        //     return Number.NaN;
+        // } else if (flight.currentLeg === config.trackDesign.departureTerminal) {
+        //     return config.trackDesign.wayToTrack;
+        // } else if (flight.currentLeg === config.trackDesign.wayToTrack) {
+        //     return config.trackDesign.track;
+        // } else {
+        //     return flight.currentLeg + 1;
+        // }
+    }
+
+    async moveFlight(flight: Flight, nextLeg: number) {
+        let isWaited = await this.waitFlightTime(flight);
+        if (!isWaited) {
+            return;
+        };
+        console.log(`${flight.flightID} entered move to ${nextLeg} after async`);
+        if (Number.isNaN(nextLeg)) {
+            this.legs[flight.currentLeg] = null;
+            flight.currentLeg = nextLeg;
         } else {
-            let mostAvailableSlot = config.trackDesign.terminals.map(t => this.queues[t].length).sort()[0];
-            let index = config.trackDesign.terminals.find(t => this.queues[t].length === mostAvailableSlot) || config.trackDesign.terminals[0];
-            this.queues[index].push(flight);
+            if (!this.legs[nextLeg]) {
+                if (0 <= flight.currentLeg && flight.currentLeg <= config.trackDesign.numOfLegs - 1) {
+                    this.legs[flight.currentLeg] = null
+                }
+                this.legs[nextLeg] = flight;
+                flight.currentLeg = nextLeg
+            }
+            if (!this.queues[nextLeg].find(f => f.flightID === flight.flightID)) {
+                this.queues[nextLeg].push(flight);
+            }
         }
     }
 
-    landTrack(flight: Flight) {
-        if (!this.legs[0]) {
-            this.legs[0] = flight;
-            flight.currentLeg = 0;
-            flight.timeChanged = new Date();
-            console.log(`flight ${flight.flightID} moved to leg ${flight.currentLeg}`);
-
-        } else {
-            this.queues[0].push(flight);
+    moveFlights() {
+        for (let i = 0; i < this.legs.length; i++) {
+            if (this.legs[i]) {
+                this.moveFlight(this.legs[i]!, this.getNextLeg(this.legs[i]!));
+            } else if (this.queues[i].length) {
+                let flight = this.queues[i].shift() as Flight;
+                if (flight.currentLeg >= 0) {
+                    this.legs[flight.currentLeg] = null;
+                }
+                this.legs[i] = flight;
+                flight.currentLeg = i
+            }
         }
+    }
+
+    async manage() {
+        const interval = setInterval(() => {
+            if (!this.isWorking) {
+                clearInterval(interval);
+            }
+            if (this.legs.some(l => l) || this.queues.some(q => q.some(f => f))) {
+                this.moveFlights()
+                this.theLog();
+            } else {
+                this.isWorking = false;
+                return;
+            }
+        }, 300);
     }
 
     getFlight(flight: Flight) {
-        //TODO
-        // if (!this.isWorking) {
-        // this.isWorking = true;
-        // this.manage();
-        // }
+        if (!this.isWorking) {
+            this.isWorking = true;
+            this.manage();
+        }
         if (flight.isDeparture) {
-            this.moveToTerminal(flight);
+            if (!this.legs[config.trackDesign.departureTerminal]) {
+                this.legs[config.trackDesign.departureTerminal] = flight;
+                flight.currentLeg = config.trackDesign.departureTerminal;
+            } else {
+                this.queues[config.trackDesign.departureTerminal].push(flight);
+            }
         } else {
-            this.landTrack(flight);
+            if (!this.legs[config.trackDesign.lendingQueue[0]]) {
+                this.legs[config.trackDesign.lendingQueue[0]] = flight;
+                flight.currentLeg = config.trackDesign.lendingQueue[0];
+            } else {
+                this.queues[config.trackDesign.lendingQueue[0]].push(flight);
+            }
         }
     }
 }
