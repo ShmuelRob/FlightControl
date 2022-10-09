@@ -1,3 +1,5 @@
+import LegHistory from "./LegHistory.type";
+
 class Flight {
     flightID: number;
     passengersCount: number;
@@ -5,7 +7,8 @@ class Flight {
     brand: string;
     currentLeg: number; // -1: before it came, number.NAN after it left
     isDeparture: boolean;
-    timeChanged: Date
+    timeChanged: Date;
+    legHistory: LegHistory[];
 
     constructor(flightID: number, passengersCount: number, 
         isCritical: boolean, brand: string, isDeparture: boolean) {
@@ -16,6 +19,7 @@ class Flight {
         this.currentLeg = -1;
         this.isDeparture = isDeparture;
         this.timeChanged = new Date();
+        this.legHistory = [];
     }
 }
 
