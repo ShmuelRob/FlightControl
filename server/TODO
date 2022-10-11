@@ -1,8 +1,0 @@
-TODO:
-
-1. think how to connect to database, what to write there - maybe 1 entity of flight datails and one entity for the log (from, to, time).
-
-2. think how to get the flights from external api
-
-3. think what to do in the UI
-

@@ -1,6 +1,5 @@
 import ControlTower from "./ControlTower";
 import Flight from "./models/Flight.model";
-import { writeData, } from './dbFirebase/setup';
 
 const control = new ControlTower();
 
@@ -24,17 +23,6 @@ control.getFlight(new Flight(17, 0, false, 'El-Al', false));
 control.getFlight(new Flight(18, 0, false, 'El-Al', true));
 control.getFlight(new Flight(19, 0, false, 'El-Al', true));
 control.getFlight(new Flight(20, 0, false, 'El-Al', true));
-
-// let flight = new Flight(1, 0, false, 'El-Al', true);
-// writeData(flight)
-
-
-// let x = async () => {
-//     let y = await getData(1).catch(err => console.log(`error: ${err}`)) as Flight;
-//     console.log(y);
-// }
-
-// x()
 
 
 

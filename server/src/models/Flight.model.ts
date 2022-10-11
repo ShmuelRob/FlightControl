@@ -8,9 +8,10 @@ class Flight {
     currentLeg: number; // -1: before it came, number.NAN after it left
     isDeparture: boolean;
     timeChanged: Date;
-    legHistory: LegHistory[];
+    legsHistory: LegHistory[];
+    isWaited: boolean;
 
-    constructor(flightID: number, passengersCount: number, 
+    constructor(flightID: number, passengersCount: number,
         isCritical: boolean, brand: string, isDeparture: boolean) {
         this.flightID = flightID;
         this.passengersCount = passengersCount;
@@ -19,7 +20,8 @@ class Flight {
         this.currentLeg = -1;
         this.isDeparture = isDeparture;
         this.timeChanged = new Date();
-        this.legHistory = [];
+        this.legsHistory = [];
+        this.isWaited = false;
     }
 }
 

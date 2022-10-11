@@ -4,7 +4,7 @@
   "description": "server for the flight control project, implemented by typescript, node and express",
   "main": "index.ts",
   "scripts": {
-    "dev": "nodemon try.ts"
+    "dev": "nodemon src/try.ts"
   },
   "author": "Shmuel Robinov",
   "license": "MIT",

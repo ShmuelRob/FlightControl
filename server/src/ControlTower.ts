@@ -1,20 +1,29 @@
 import Flight from './models/Flight.model'
 import config from './config.json'
-import { writeData } from './dbFirebase/setup';
-import { table, log } from 'console';
+import fs from 'fs'
+import { Worker, workerData } from 'worker_threads';
+import { writeData } from './dataAccessLayer/setup';
 
 class ControlTower {
 
-    isWorking: boolean = false;
+    private isWorking: boolean = false;
     legs: Flight[] | null[] = [];
     queues: Flight[][] = []
+    // workers: Worker[] = [];
 
     constructor() {
         this.legs.length = config.trackDesign.numOfLegs;
         this.queues.length = config.trackDesign.numOfLegs;
-        for (let i = 0; i < this.queues.length; i++) {
-            this.queues[i] = [];
-        }
+        this.queues.fill([]);
+        // console.log(this.queues);
+        
+        // for (let i = 0; i < this.queues.length; i++) {
+        //     this.queues[i] = [];
+        // }
+
+
+        // this.workers.length = config.trackDesign.numOfLegs;
+        // this.workers.fill(new Worker('./worker.ts', { workerData: { /*legs: this.legs,*/ type: module } }));
     }
 
     //TODO this only for testing, remove when api is ready
@@ -30,7 +39,7 @@ class ControlTower {
             if (flight.currentLeg == -1) {
                 resolve(true);
             } else {
-                let timeLeft = config.trackDesign.timeInLeg[flight.currentLeg] * 1000 -
+                const timeLeft = config.trackDesign.timeInLeg[flight.currentLeg] * 1000 -
                     (new Date().getTime() - flight.timeChanged.getTime());
                 if (timeLeft <= 0) {
                     resolve(true);
@@ -75,42 +84,42 @@ class ControlTower {
         // }
     }
 
+    documentFlight(flight: Flight, nextLeg: number) {
+        if (!flight.legsHistory.some(l => Number.isNaN(l.to)) && !flight.legsHistory.some(l => l.from === flight.currentLeg)) {
+            flight.legsHistory.push({
+                from: flight.currentLeg,
+                to: nextLeg,
+                timeChanged: flight.timeChanged
+            })
+        }
+        if (Number.isNaN(nextLeg)) {
+            writeData(flight);
+        }
+    }
+
     moveFlight(flight: Flight, nextLeg: number) {
         flight.timeChanged = new Date();
         if (Number.isNaN(nextLeg)) {
             this.legs[flight.currentLeg] = null;
-            // if (!flight.legHistory.some(l => Number.isNaN(l.to))) {
-            //     flight.legHistory.push({
-            //         from: flight.currentLeg,
-            //         to: nextLeg,
-            //         timeChanged: flight.timeChanged
-            //     })
-            // }
+            this.documentFlight(flight, nextLeg);
             flight.currentLeg = nextLeg;
         } else {
+            this.legs[nextLeg] = flight;
             if (0 <= flight.currentLeg && flight.currentLeg <= config.trackDesign.numOfLegs - 1) {
                 this.legs[flight.currentLeg] = null
             }
-            // if (!flight.legHistory.some(l => l.to === nextLeg)) {
-            //     flight.legHistory.push({
-            //         from: flight.currentLeg,
-            //         to: nextLeg,
-            //         timeChanged: flight.timeChanged
-            //     })
-            // }
-            this.legs[nextLeg] = flight;
+            this.documentFlight(flight, nextLeg);
             flight.currentLeg = nextLeg
         }
-        // log(flight.flightID)
-        // table(flight.legHistory);
     }
+
 
     moveFlights() {
         for (let i = 0; i < this.legs.length; i++) {
             if (this.legs[i]) {
-                let flight = { ...this.legs[i]! };
-                let nextLeg = this.getNextLeg(flight);
-                if (Number.isNaN(nextLeg) || !this.legs[nextLeg]) {
+                const flight: Flight = { ...this.legs[i]! };
+                const nextLeg = this.getNextLeg(flight);
+                if (Number.isNaN(nextLeg) /*|| !this.legs[nextLeg]*/) {
                     this.waitFlightTime(flight).then(res => {
                         this.moveFlight(flight, nextLeg)
                     });
@@ -118,22 +127,16 @@ class ControlTower {
                     this.queues[nextLeg].push(this.legs[i]!);
                 }
             } else if (this.queues[i].length) {
-                let flight = this.queues[i].shift() as Flight;
-                let nextLeg = this.getNextLeg(flight);
+                const flight = this.queues[i][0];
                 this.waitFlightTime(flight).then(res => {
-                    this.moveFlight(flight, nextLeg)
-                });
-                // if (flight.currentLeg >= 0) {
-                //     this.legs[flight.currentLeg] = null;
-                // }
-                // this.legs[i] = flight;
-                // flight.currentLeg = i
+                    this.queues[i].shift();
+                    this.moveFlight(flight, i)
+                })
             }
         }
     }
 
     async manage() {
-        console.log('entered manage');
         const interval = setInterval(() => {
             if (!this.isWorking) {
                 clearInterval(interval);
@@ -154,22 +157,17 @@ class ControlTower {
             this.manage();
         }
         if (flight.isDeparture) {
-
-            if (!this.legs[config.trackDesign.departureTerminal]) {
-                this.moveFlight(flight, config.trackDesign.departureTerminal)
-                // this.legs[config.trackDesign.departureTerminal] = flight;
-                // flight.currentLeg = config.trackDesign.departureTerminal;
-            } else {
+            // if (!this.legs[config.trackDesign.departureTerminal]) {
+                // this.moveFlight(flight, config.trackDesign.departureTerminal)
+            // } else {
                 this.queues[config.trackDesign.departureTerminal].push(flight);
-            }
+            // }
         } else {
-            if (!this.legs[config.trackDesign.lendingQueue[0]]) {
-                // this.legs[config.trackDesign.lendingQueue[0]] = flight;
-                // flight.currentLeg = config.trackDesign.lendingQueue[0];
-                this.moveFlight(flight, config.trackDesign.lendingQueue[0])
-            } else {
+            // if (!this.legs[config.trackDesign.lendingQueue[0]]) {
+                // this.moveFlight(flight, config.trackDesign.lendingQueue[0])
+            // } else {
                 this.queues[config.trackDesign.lendingQueue[0]].push(flight);
-            }
+            // }
         }
     }
 }
