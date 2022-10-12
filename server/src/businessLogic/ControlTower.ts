@@ -1,8 +1,8 @@
-import Flight from './models/Flight.model'
-import config from './config.json'
+import Flight from '../models/Flight.model'
+import config from '../config.json'
 import fs from 'fs'
 import { Worker, workerData } from 'worker_threads';
-import { writeData } from './dataAccessLayer/setup';
+import { writeData } from '../dataAccessLayer/setup';
 
 class ControlTower {
 

@@ -28,9 +28,7 @@ const setFlight = (flight: Flight): Promise<void> => {
         passengersCount: flight.passengersCount,
         isCritical: flight.isCritical,
         brand: flight.brand,
-        // currentLeg: flight.currentLeg,
         isDeparture: flight.isDeparture,
-        // timeChanged: flight.timeChanged.toString(),
     })
 }
 
@@ -46,32 +44,9 @@ const setTracks = (flightID: number, legsHistory: LegHistory[]): Promise<void> =
 }
 
 const writeData = (flight: Flight): Promise<void[]> => {
-    console.log(`save in db ${flight.flightID}`);
     const a = setFlight(flight);
     const b = setTracks(flight.flightID, flight.legsHistory);
     return Promise.all([a, b]);
 }
 
-// const getFlight = (flightID: number): Promise<Flight> => {
-//     const flightRef = ref(db, `flights/${flightID}`);
-//     return new Promise((resolve, reject) => {
-//         onValue(flightRef, snapshot => {
-//             if (!snapshot.hasChildren()) {
-//                 reject(new FirebaseError('404', "not found"))
-//             }
-//             let date = new Date(snapshot.child('timeChanged').val());
-//             let flight: Flight = { ...snapshot.val(), timeChanged: date };
-//             resolve(flight)
-//         }, err => {
-//             if (err) {
-//                 reject(err);
-//                 // reject(new FirebaseError('404', "not found"));
-//             }
-//         })
-//     })
-// }
-
-
-export { writeData/*, getFlight*/ }
-
-/* Visit https://firebase.google.com/docs/database/security to learn more about security rules. */ //- from database.rules.json
+export { writeData }

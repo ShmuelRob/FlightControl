@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import ControlTower from "./ControlTower";
+import ControlTower from "./businessLogic/ControlTower";
 import Flight from "./models/Flight.model";
 import FlightFromSocket from './models/FlightFromSocket';
 
