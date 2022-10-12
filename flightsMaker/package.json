@@ -1,0 +1,22 @@
+{
+  "name": "flights-maker",
+  "version": "1.0.0",
+  "description": "simulator that makes the flights",
+  "main": "./dest/index.js",
+  "scripts": {
+    "dev": "nodemon ./src/index.ts",
+    "build": "tsc",
+    "start": "node ./dest/index.js",
+    "all-in-one": "npm i && npm run build && npm start"
+  },
+  "author": "Shmuel Robinov",
+  "license": "ISC",
+  "dependencies": {
+    "socket.io": "^4.5.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.4"
+  }
+}
