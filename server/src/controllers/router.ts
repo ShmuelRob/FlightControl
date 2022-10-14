@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express'
-import Flight from '../models/Flight.model';
-import ControlTower from '../businessLogic/ControlTower';
+import Flight from '../models/Flight.interface';
+import ControlTower from '../logic/ControlTower';
 import FlightGetterService from '../services/FlightGetterService';
 
 const router = express.Router();

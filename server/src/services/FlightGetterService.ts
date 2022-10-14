@@ -1,8 +1,8 @@
 import { io, Socket } from "socket.io-client";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import Flight from "../models/Flight.model";
-import FlightFromSocket from "../models/FlightFromSocket";
-import ControlTower from '../businessLogic/ControlTower';
+import Flight from "../models/Flight.interface";
+import FlightFromSocket from "../models/FlightFromSocket.type";
+import ControlTower from '../logic/ControlTower';
 
 class FlightGetterService {
     control: ControlTower;
@@ -10,7 +10,7 @@ class FlightGetterService {
 
     constructor(control: ControlTower) {
         this.control = control;
-        
+
         this.socket = io('http://localhost:6000');
         this.socket.on('connect', () => {
             console.log('connected');
@@ -23,7 +23,17 @@ class FlightGetterService {
     }
 
     createFlight(flight: FlightFromSocket): Flight {
-        return new Flight(flight.flightID, flight.passengersCount, flight.isCritical, flight.brand, flight.isDeparture);
+        return {
+            flightID: flight.flightID,
+            passengersCount: flight.passengersCount,
+            isCritical: flight.isCritical,
+            brand: flight.brand,
+            isDeparture: flight.isDeparture,
+            currentLeg: -1,
+            timeChanged: new Date(),
+            legsHistory: [],
+            isWaited: false
+        }
     }
 }
 export default FlightGetterService;

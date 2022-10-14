@@ -1,8 +1,8 @@
-import Flight from '../models/Flight.model'
+import Flight from '../models/Flight.interface'
 import config from '../config.json'
 import fs from 'fs'
 import { Worker, workerData } from 'worker_threads';
-import { writeData } from '../dataAccessLayer/setup';
+import { writeData } from '../dataBase/context';
 
 class ControlTower {
 
@@ -10,12 +10,13 @@ class ControlTower {
     private isWorking: boolean = false;
     legs: Flight[] | null[] = [];
     queues: Flight[][] = []
+    callBack: Function | null = null;
     // workers: Worker[] = [];
 
     //#endregion
 
 
-    constructor() {
+    constructor(cb?: (eventName: string, legs: Flight[] | null[]) => boolean) {
         this.legs.length = config.trackDesign.numOfLegs;
         this.queues.length = config.trackDesign.numOfLegs;
         // this.queues.fill([]);
@@ -25,6 +26,7 @@ class ControlTower {
             this.queues[i] = [];
         }
 
+        this.callBack = cb ?? null;
 
         // this.workers.length = config.trackDesign.numOfLegs;
         // this.workers.fill(new Worker('./worker.ts', { workerData: { /*legs: this.legs,*/ type: module } }));
@@ -35,24 +37,7 @@ class ControlTower {
         // console.log('legs:');
         console.table(this.legs);
         // console.log('queues:');
-        console.log(this.queues);
-    }
-
-    waitFlightTime2(flight: Flight): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            if (flight.currentLeg == -1) {
-                resolve(true);
-            } else {
-                const timeLeft = config.trackDesign.timeInLeg[flight.currentLeg] * 1000 -
-                    (new Date().getTime() - flight.timeChanged.getTime());
-                if (timeLeft <= 0) {
-                    resolve(true);
-                }
-                setTimeout(() => {
-                    resolve(true);
-                }, timeLeft);
-            }
-        })
+        // console.log(this.queues);
     }
 
     waitFlightTime(flight: Flight): Promise<boolean> {
@@ -62,15 +47,13 @@ class ControlTower {
             } else {
                 const timeLeft = config.trackDesign.timeInLeg[flight.currentLeg] * 1000 -
                     (new Date().getTime() - flight.timeChanged.getTime());
-                // if (timeLeft <= 0) {
-                //     resolve(true);
-                // }
                 setTimeout(() => {
                     resolve(true);
-                }, 2000); //TODO change to timeLeft
+                }, timeLeft);
             }
         })
     }
+
     getNextLeg(flight: Flight) {
         switch (flight.currentLeg) {
             case config.trackDesign.wayToTerminal:
@@ -118,11 +101,11 @@ class ControlTower {
     }
 
     async moveFlight(flight: Flight, nextLeg: number) {
-        // console.log(`flight ${flight.flightID} moved from ${flight.currentLeg} to ${nextLeg}`);
         flight.timeChanged = new Date();
         if (Number.isNaN(nextLeg)) {
             this.legs[flight.currentLeg] = null;
             this.documentFlight(flight, nextLeg);
+            this.callBack?.("legs-updated", this.legs);
             flight.currentLeg = nextLeg;
         } else {
             this.legs[nextLeg] = flight;
@@ -130,6 +113,7 @@ class ControlTower {
                 this.legs[flight.currentLeg] = null
             }
             this.documentFlight(flight, nextLeg);
+            this.callBack?.("legs-updated", this.legs);
             flight.currentLeg = nextLeg
             flight.isWaited = false;
             flight.isWaited = await this.waitFlightTime(flight);
@@ -137,30 +121,18 @@ class ControlTower {
     }
 
     moveFlights() {
-        // console.table(this.legs);
         for (let i = 0; i < this.legs.length; i++) {
-            // console.log(`leg ${i} is ${this.legs[i] ? 'busy' : 'free'}`);
-
             if (this.legs[i]) {
-                // const flight: Flight = { ...this.legs[i]! };
                 const flight: Flight = this.legs[i]!;
                 const nextLeg = this.getNextLeg(flight);
-                if (Number.isNaN(nextLeg) && flight.isWaited /*|| !this.legs[nextLeg]*/) {
-                    // this.waitFlightTime(flight).then(res => {
-                    // console.log(`flight ${flight.flightID} moved from ${flight.currentLeg} to nan `);
+                if (Number.isNaN(nextLeg) && flight.isWaited) {
                     this.moveFlight(flight, nextLeg)
-                    // });
                 } else if (flight.isWaited && !this.queues[nextLeg].some(f => f.flightID === flight.flightID)) {
                     this.queues[nextLeg].push(flight);
-                    // console.log(`flight ${flight.flightID} moved from ${flight.currentLeg} to queue for ${nextLeg} `);
                 }
             } else if (this.queues[i].length) {
                 const flight = this.queues[i].shift() as Flight;
-                // console.log(`flight ${flight.flightID} moved from ${flight.currentLeg} to  ${i} from the queue `);
-                // this.waitFlightTime(flight).then(res => {
-                // this.queues[i].shift();
                 this.moveFlight(flight, i);
-                // })
             }
         }
     }
@@ -182,24 +154,9 @@ class ControlTower {
 
     getFlight(flight: Flight) {
         if (flight.isDeparture) {
-            // if (!this.legs[config.trackDesign.departureTerminal]) {
-            // this.moveFlight(flight, config.trackDesign.departureTerminal)
-            // } else {
-
             this.queues[config.trackDesign.departureTerminal].push(flight);
-            // console.log(`flight ${flight.flightID} moved from ${flight.currentLeg} to queue for ${config.trackDesign.departureTerminal} `);
-            // console.log(this.queues[config.trackDesign.departureTerminal]);
-
-
-            // }
         } else {
-            // if (!this.legs[config.trackDesign.lendingQueue[0]]) {
-            // this.moveFlight(flight, config.trackDesign.lendingQueue[0])
-            // } else {
             this.queues[config.trackDesign.lendingQueue[0]].push(flight);
-            // console.log(`flight ${flight.flightID} moved from ${flight.currentLeg} to queue for ${config.trackDesign.lendingQueue[0]} `);
-            // console.log(this.queues[config.trackDesign.lendingQueue[0]]);
-            // }
         }
         if (!this.isWorking) {
             this.isWorking = true;

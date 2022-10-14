@@ -2,6 +2,7 @@ import express from "express";
 import config from './config.json';
 import router from "./controllers/router";
 
+
 const server = express();
 server.use(router);
 

@@ -1,5 +1,5 @@
 import { workerData } from 'worker_threads';
-import Flight from "./models/Flight.model";
+import Flight from "./models/Flight.interface";
 
 
 

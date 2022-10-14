@@ -1,6 +1,6 @@
 import { FirebaseApp, FirebaseOptions, initializeApp } from "firebase/app";
 import { Database, getDatabase, ref, set } from "firebase/database";
-import Flight from "../models/Flight.model";
+import Flight from "../models/Flight.interface";
 import LegHistory from '../models/LegHistory.type';
 
 const firebaseConfig: FirebaseOptions = {

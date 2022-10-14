@@ -2,11 +2,11 @@
   "name": "server",
   "version": "1.0.0",
   "description": "server for the flight control project, implemented by typescript, node and express",
-  "main": "index.ts",
+  "main": "app.ts",
   "scripts": {
     "dev": "nodemon src/try.ts",
     "build": "tsc",
-    "start": "node ./dest/index.js",
+    "start": "node ./dest/app.js",
     "all-in-one": "npm i && npm run build && npm start"
   },
   "author": "Shmuel Robinov",
