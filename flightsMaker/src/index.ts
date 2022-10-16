@@ -1,8 +1,10 @@
 import { Server } from 'socket.io';
+import config from './config.json';
 
 let idCounter = 0;
-const io = new Server(6000, { cors: { origin: '*', methods: ['GET'] } });
-io.on('connection', (socket) => {
+const socket = new Server(config.PORT, { cors: { origin: '*', methods: ['GET'] } });
+
+socket.on('connection', () => {
     createFlights();
 });
 
@@ -18,7 +20,7 @@ const createFlight = () => {
         brand: ` flight ${idCounter}`,
         isDeparture: setBool(),
     }
-    io.emit('flightCreated', flight);
+    socket.emit('flightCreated', flight);
 }
 
 const createFlights = () => {

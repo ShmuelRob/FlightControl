@@ -1,34 +1,18 @@
-import { Socket, Server } from 'socket.io';
+import { Server } from 'socket.io';
+import { io } from 'socket.io-client';
+import config from './config.json';
+import ControlTower from './logic/ControlTower';
+import createFlight from './logic/createFlight';
+import FlightFromSocket from './models/FlightFromSocket.type';
 
-const socket = new Server(3000, { cors: { origin: '*' } });
+const socketServer = new Server(config.PORT, { cors: { origin: '*', methods: ['GET'] } });
 
-socket.on('connection', (client: Socket) => {
-    console.log(`client: ${client.id} connected`);
+const control = new ControlTower(socketServer);
+
+const serverUrl = `http://localhost:${config.SERVER_PORT}`;
+const socketClient = io(serverUrl);
+
+socketClient.on('flightCreated', (data: FlightFromSocket) => {
+    control.getFlight(createFlight(data));
 });
-
-socket.emit('message', 'hello world');
-
-
-
-// const socketServer = new Server(config.PORT, { cors: { origin: '*' } });
-
-// socketServer.on('connection', () => {
-//     console.log('new connection');
-// });
-
-// socketServer.on('disconnect', () => {
-//     console.log('user disconnected');
-// });
-
-// const control = new ControlTower(socketServer.emit)
-
-
-// const socketClient = io('http://localhost:6000');
-// socketClient.on('connect', () => {
-//     console.log('connected');
-// });
-
-// socketClient.on('flightCreated', (data: FlightFromSocket) => {
-//     control.getFlight(createFlight(data));
-// });
 

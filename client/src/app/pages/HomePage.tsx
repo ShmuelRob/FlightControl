@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import FlightView from "../components/flightView/FlightView";
 import Header from "../components/Header";
-import Flight from "./../models/Flight.model";
+import Flight from "../models/Flight.model";
 
 function HomePage() {
   const [flight, setFlight]: [

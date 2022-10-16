@@ -8,10 +8,11 @@ class FlightGetterService {
     control: ControlTower;
     socket: Socket<DefaultEventsMap, DefaultEventsMap>;
 
-    constructor(control: ControlTower) {
+    constructor(control: ControlTower, url: string) {
         this.control = control;
 
-        this.socket = io('http://localhost:6000');
+        // this.socket = io('http://localhost:6000');
+        this.socket = io(`${url ?? 'http://localhost:6000'}`);
         this.socket.on('connect', () => {
             console.log('connected');
         });

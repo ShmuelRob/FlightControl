@@ -1,8 +1,7 @@
 import Flight from '../models/Flight.interface'
 import config from '../config.json'
-import fs from 'fs'
-import { Worker, workerData } from 'worker_threads';
 import { writeData } from '../dataBase/context';
+import { Server } from 'socket.io';
 
 class ControlTower {
 
@@ -10,34 +9,17 @@ class ControlTower {
     private isWorking: boolean = false;
     legs: Flight[] | null[] = [];
     queues: Flight[][] = []
-    callBack: Function | null = null;
-    // workers: Worker[] = [];
-
+    socket?: Server;
     //#endregion
 
 
-    constructor(cb?: (eventName: string, legs: Flight[] | null[]) => boolean) {
+    constructor(socket?: Server) {
         this.legs.length = config.trackDesign.numOfLegs;
         this.queues.length = config.trackDesign.numOfLegs;
-        // this.queues.fill([]);
-        // console.log(this.queues);
-
         for (let i = 0; i < this.queues.length; i++) {
             this.queues[i] = [];
         }
-
-        this.callBack = cb ?? null;
-
-        // this.workers.length = config.trackDesign.numOfLegs;
-        // this.workers.fill(new Worker('./worker.ts', { workerData: { /*legs: this.legs,*/ type: module } }));
-    }
-
-    //TODO this only for testing, remove when api is ready
-    theLog() {
-        // console.log('legs:');
-        console.table(this.legs);
-        // console.log('queues:');
-        // console.log(this.queues);
+        this.socket = socket ?? undefined;
     }
 
     waitFlightTime(flight: Flight): Promise<boolean> {
@@ -105,7 +87,7 @@ class ControlTower {
         if (Number.isNaN(nextLeg)) {
             this.legs[flight.currentLeg] = null;
             this.documentFlight(flight, nextLeg);
-            this.callBack?.("legs-updated", this.legs);
+            this.socket?.emit("legs-updated", this.legs);
             flight.currentLeg = nextLeg;
         } else {
             this.legs[nextLeg] = flight;
@@ -113,7 +95,7 @@ class ControlTower {
                 this.legs[flight.currentLeg] = null
             }
             this.documentFlight(flight, nextLeg);
-            this.callBack?.("legs-updated", this.legs);
+            this.socket?.emit("legs-updated", this.legs);
             flight.currentLeg = nextLeg
             flight.isWaited = false;
             flight.isWaited = await this.waitFlightTime(flight);
@@ -144,7 +126,6 @@ class ControlTower {
             }
             if (this.legs.some(l => l) || this.queues.some(q => q.length)) {
                 this.moveFlights()
-                this.theLog();
             } else {
                 this.isWorking = false;
                 return;

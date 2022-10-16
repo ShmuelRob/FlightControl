@@ -4,21 +4,19 @@
   "description": "server for the flight control project, implemented by typescript, node and express",
   "main": "app.ts",
   "scripts": {
-    "dev": "nodemon src/try.ts",
+    "dev": "nodemon src/app.ts",
     "build": "tsc",
-    "start": "node ./dest/app.js",
+    "start": "node ./dist/app.js",
     "all-in-one": "npm i && npm run build && npm start"
   },
   "author": "Shmuel Robinov",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.1",
     "firebase": "^9.10.0",
     "socket.io": "^4.5.2",
     "socket.io-client": "^4.5.2"
   },
   "devDependencies": {
-    "@types/express": "^4.17.14",
     "@types/node": "^18.8.0",
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",

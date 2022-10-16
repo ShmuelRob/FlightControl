@@ -1,6 +1,5 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
-import counterReducer from '../features/counter/counterSlice';
-import flightReducer from '../features/flights/flightSlice';
+import flightReducer from './flightSlice';
 
 export const store = configureStore({
   reducer: {

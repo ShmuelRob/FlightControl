@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import Flight from './../../models/Flight.model';
+import Flight from '../models/Flight.model';
 
 export interface FlightState {
   value: Flight | null;
