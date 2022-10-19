@@ -49,4 +49,9 @@ const writeData = (flight: Flight): Promise<void[]> => {
     return Promise.all([a, b]);
 }
 
-export { writeData }
+const deleteAllData = (): Promise<void> => {
+    const refs = [ref(db, 'flights'), ref(db, 'tracks')];
+    return Promise.all(refs.map(r => set(r, null))).then(() => { });
+}
+
+export { writeData, deleteAllData };

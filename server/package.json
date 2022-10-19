@@ -5,6 +5,7 @@
   "main": "app.ts",
   "scripts": {
     "dev": "nodemon src/app.ts",
+    "reset": "nodemon src/dataBase/resetDB.ts",
     "build": "tsc",
     "start": "node ./dist/app.js",
     "all-in-one": "npm i && npm run build && npm start"
