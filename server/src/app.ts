@@ -15,4 +15,3 @@ const socketClient = io(serverUrl);
 socketClient.on('flightCreated', (data: FlightFromSocket) => {
     control.getFlight(createFlight(data));
 });
-
