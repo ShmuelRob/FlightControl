@@ -14,7 +14,7 @@ const setBool = (): boolean => {
 
 const createFlight = () => {
     const flight = {
-        flightID: idCounter++,
+        flightID: ++idCounter,
         passengersCount: Math.floor(Math.random() * 1000),
         isCritical: setBool(),
         brand: ` flight ${idCounter}`,
