@@ -17,7 +17,7 @@ const createFlight = () => {
         flightID: ++idCounter,
         passengersCount: Math.floor(Math.random() * 1000),
         isCritical: setBool(),
-        brand: ` flight ${idCounter}`,
+        brand: `flight ${idCounter}`,
         isDeparture: setBool(),
     }
     socket.emit('flightCreated', flight);
