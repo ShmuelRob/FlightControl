@@ -1,0 +1,26 @@
+header {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 1rem;
+  /* justify-content: space-between; */
+}
+
+img {
+    margin: 0;
+    padding: 0;
+}
+
+ul {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: row;
+}
+li {
+  margin-right: 0.5rem;
+
+}

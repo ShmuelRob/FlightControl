@@ -1,5 +1,27 @@
-import React from "react";
+import Flight from "../../models/Flight.model";
+import Leg from "./Leg";
+import styles from "./trackView.module.css";
 
-export default function TrackView() {
-  return <div>TrackView</div>;
+interface TrackViewProps {
+  legs: (Flight | null)[];
+  setFlight: (flight: Flight | null) => void;
+  // FlightView: Flight | null;
+}
+
+export default function TrackView(props: TrackViewProps) {
+
+  return (
+    <article className={styles["grid"]} >
+      {props.legs.map((leg, index) => {
+        return (
+          <Leg
+            key={index}
+            leg={index}
+            flight={leg}
+            setFlight={(f: Flight | null) => props.setFlight(f)}
+          />
+        );
+      })}
+    </article>
+  );
 }

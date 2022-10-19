@@ -1,12 +1,15 @@
 import io from 'socket.io-client';
 import Flight from '../models/Flight.model';
+import config from '../../config.json';
+import { useDispatch } from 'react-redux';
+import { setLegs } from '../redux/trackSlice';
 
-const socket = io('http://localhost:5000');
+const serverUrl = `http://localhost:${config.SERVER_PORT}`;
+const socket = io(serverUrl);
 
 export const getData = () => {
-    return new Promise((resolve, reject) => {
-        socket.on('data', (data: Flight[]) => {
-        resolve(data);
-        });
+    const dispatch = useDispatch();
+    socket.on('data', (data: Flight[]) => {
+        dispatch(setLegs(data));
     });
-    }
+}

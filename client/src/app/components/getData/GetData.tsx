@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import io from "socket.io-client";
+
 // import Flight from "../../models/Flight.model";
 
 function GetData() {
