@@ -4,8 +4,8 @@ import TrackView from "./../components/trackView/TrackView";
 import Header from "../components/Header";
 import Flight from "../models/Flight.model";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
-import { getData } from "../server/getData";
+import { RootState } from "../../redux/store";
+import { getData } from "../../server/getData";
 
 function HomePage() {
 

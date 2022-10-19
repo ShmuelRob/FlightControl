@@ -1,6 +1,6 @@
 import io from 'socket.io-client';
-import Flight from '../models/Flight.model';
-import config from '../../config.json';
+import Flight from '../app/models/Flight.model';
+import config from '../config.json';
 import { useDispatch } from 'react-redux';
 import { setLegs } from '../redux/trackSlice';
 
