@@ -4,7 +4,7 @@ import styles from "./flightView.module.css";
 interface FlightViewProps {
   flight: Flight | null;
   close: () => void;
-} 
+}
 
 function FlightView(props: FlightViewProps) {
   return (
@@ -22,7 +22,9 @@ function FlightView(props: FlightViewProps) {
           Passengers count: {props.flight?.passengersCount}
         </p>
       </article>
-      <button className={styles["close-button"]} onClick={props.close} >close</button>
+      <button className={styles["close-button"]} onClick={props.close}>
+        close
+      </button>
     </aside>
   );
 }

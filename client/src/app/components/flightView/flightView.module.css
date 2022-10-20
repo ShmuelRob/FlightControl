@@ -1,16 +1,16 @@
 .flight-view-container {
-  flex-grow: 5;
+  flex-grow: 3;
   border: 1px solid #000;
   text-align: center;
 }
 
 .close-button {
-    width: 60%;
-    height: 15%;
-    background-color: #ff2800;
-    color: #000;
-    font-size: 1.5rem;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 30%;
+  width: 60%;
+  height: 15%;
+  background-color: #ff2800;
+  color: #000;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 30%;
 }

@@ -1,12 +1,10 @@
-import React from "react";
 import "./header.module.css";
-import logo from "../../assets/Logo.jpg";
+import logo from '../../../assets/Logo.jpg';
 
 function Header() {
   return (
     <header>
       <img src={logo} height="50" width="50" />
-      {/* <Logo /> */}
       <nav>
         <ul>
           <li>

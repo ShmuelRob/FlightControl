@@ -1,29 +1,46 @@
 import { useState } from "react";
 import FlightView from "../components/flightView/FlightView";
 import TrackView from "./../components/trackView/TrackView";
-import Header from "../components/Header";
 import Flight from "../models/Flight.model";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
-import { getData } from "../../server/getData";
+import { io } from "socket.io-client";
+import config from "../../config.json";
+import Header from "../components/header/Header";
 
 function HomePage() {
+  // const [legs, setLegs] = useState<(Flight| null)[]>([
+  //   { flightID: 1, passengersCount: 100, isCritical: false, brand: 'Delta', isDeparture: true },
+  //   null,
+  //   { flightID: 2, passengersCount: 100, isCritical: false, brand: 'Delta', isDeparture: true },
+  //   null,
+  //   { flightID: 3, passengersCount: 100, isCritical: false, brand: 'Delta', isDeparture: true },
+  //   null,
+  //   null,
+  //   { flightID: 4, passengersCount: 100, isCritical: false, brand: 'Delta', isDeparture: true },
+  // ]);
 
-  getData();
+  const [legs, setLegs] = useState<(Flight | null)[]>([
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+  ]);
 
-
-
-  const legs = useSelector<RootState, (Flight | null)[]>(
-    (store) => store.track.legs
-  );
+  const serverUrl = `http://localhost:${config.SERVER_PORT}`;
+  const socket = io(serverUrl);
+  socket.on("legs-updated", (data: Flight[]) => {
+    setLegs(data);
+  });
   const [flight, setFlight] = useState<Flight | null>(null);
 
   const selectFlight = (flightSelected: Flight | null) => {
-    console.log("selectFlight in HomePage");
     if (flight?.flightID === flightSelected?.flightID) {
       flightSelected = null;
     }
-    setFlight(flightSelected);
+    setFlight(flightSelected ? { ...flightSelected } : null);
   };
 
   const closeFlightView = () => {
