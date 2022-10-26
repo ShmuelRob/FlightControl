@@ -4,7 +4,9 @@ import config from './config.json';
 let idCounter = 0;
 const socket = new Server(config.PORT, { cors: { origin: '*', methods: ['GET'] } });
 
+
 socket.on('connection', () => {
+    console.log('connected');
     createFlights();
 });
 

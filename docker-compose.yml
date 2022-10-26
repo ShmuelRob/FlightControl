@@ -1,0 +1,22 @@
+services:
+  flights-maker:
+    hostname: myhost
+    build:
+      context: ./flightsMaker
+      dockerfile: Dockerfile
+    ports:
+      - "7000:7000"
+  server:
+    hostname: myhost
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+  client:
+    hostname: myhost
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"

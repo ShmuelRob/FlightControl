@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FlightView from "../components/flightView/FlightView";
 import TrackView from "./../components/trackView/TrackView";
 import Flight from "../models/Flight.model";
@@ -7,17 +7,6 @@ import config from "../../config.json";
 import Header from "../components/header/Header";
 
 function HomePage() {
-  // const [legs, setLegs] = useState<(Flight| null)[]>([
-  //   { flightID: 1, passengersCount: 100, isCritical: false, brand: 'Delta', isDeparture: true },
-  //   null,
-  //   { flightID: 2, passengersCount: 100, isCritical: false, brand: 'Delta', isDeparture: true },
-  //   null,
-  //   { flightID: 3, passengersCount: 100, isCritical: false, brand: 'Delta', isDeparture: true },
-  //   null,
-  //   null,
-  //   { flightID: 4, passengersCount: 100, isCritical: false, brand: 'Delta', isDeparture: true },
-  // ]);
-
   const [legs, setLegs] = useState<(Flight | null)[]>([
     null,
     null,
@@ -29,11 +18,20 @@ function HomePage() {
     null,
   ]);
 
-  const serverUrl = `http://localhost:${config.SERVER_PORT}`;
-  const socket = io(serverUrl);
-  socket.on("legs-updated", (data: Flight[]) => {
-    setLegs(data);
-  });
+  useEffect(() => {
+    const serverUrl = `http://localhost:${config.SERVER_PORT}`;
+    const socket = io(serverUrl);
+
+    // socket.on("connect", () => {
+    //   console.log("Connected to server");
+    // });
+
+    socket.on("legs-updated", (data: (Flight | null)[]) => {
+      console.log("Legs updated");
+      setLegs(data);
+    });
+  }, []);
+
   const [flight, setFlight] = useState<Flight | null>(null);
 
   const selectFlight = (flightSelected: Flight | null) => {

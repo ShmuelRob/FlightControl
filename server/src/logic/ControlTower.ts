@@ -53,20 +53,6 @@ class ControlTower {
             default:
                 return flight.currentLeg + 1;
         }
-
-        // if (flight.currentLeg === config.trackDesign.track && flight.isDeparture) {
-        //     return Number.NaN;
-        // } else if (flight.currentLeg === config.trackDesign.wayToTerminal) {
-        //     return config.trackDesign.landingTerminal;
-        // } else if (flight.currentLeg === config.trackDesign.landingTerminal) {
-        //     return Number.NaN;
-        // } else if (flight.currentLeg === config.trackDesign.departureTerminal) {
-        //     return config.trackDesign.wayToTrack;
-        // } else if (flight.currentLeg === config.trackDesign.wayToTrack) {
-        //     return config.trackDesign.track;
-        // } else {
-        //     return flight.currentLeg + 1;
-        // }
     }
 
     documentFlight(flight: Flight, nextLeg: number) {
@@ -100,6 +86,7 @@ class ControlTower {
             flight.isWaited = false;
             flight.isWaited = await this.waitFlightTime(flight);
         }
+        // console.log(this.legs);
     }
 
     moveFlights() {
