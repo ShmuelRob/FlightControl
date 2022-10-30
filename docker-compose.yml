@@ -1,17 +1,12 @@
 services:
   flights-maker:
-    # hostname: localhost
     build:
       context: ./flights-maker
       dockerfile: Dockerfile
     ports:
       - "7000:7000"
-    # env_file:
-      # - .env
   server:
     hostname: localhost
-    # environment:
-      # - FLIGHT_MAKER_HOST=flights-maker
     build:
       context: ./server
       dockerfile: Dockerfile
@@ -19,14 +14,9 @@ services:
       - "5000:5000"
     env_file:
       - .env
-      # args:
-        # - FLIGHT_MAKER_HOST=flight-maker
   client:
-    # hostname: client
     build:
       context: ./client
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    # env_file:
-      # - .env
