@@ -1,5 +1,7 @@
 import Flight from '../models/Flight.interface'
-import config from '../config.json'
+// import config from ../..'
+// import config from '../../node_modules/config/custom-environment-variables.json'
+import config from '../custom-environment-variables.json'
 import { writeData } from '../dataBase/context';
 import { Server } from 'socket.io';
 

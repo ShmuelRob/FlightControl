@@ -1,10 +1,5 @@
 FROM node:alpine
-
-# # Create app directory
 RUN mkdir -p /server
-
-# # Install app dependencies
-# # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json /server
 COPY tsconfig.json /server
 WORKDIR /server

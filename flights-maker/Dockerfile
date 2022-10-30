@@ -23,21 +23,10 @@
 
 
 FROM node:alpine
-
-# Create app directory
 RUN mkdir -p /flightsMaker
-
-# # Install app dependencies
-# # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY package*.json /flightsMaker
 COPY tsconfig.json /flightsMaker
-
 WORKDIR /flightsMaker
 RUN npm install
-
 COPY /src /flightsMaker/src
-
-# WORKDIR /flightsMaker
-# EXPOSE 6000
 CMD [ "npm", "run", "dev" ]
-# # CMD [ "nodemon", "src/app.ts" ]

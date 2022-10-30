@@ -2,7 +2,7 @@
   "name": "flights-maker",
   "version": "1.0.0",
   "description": "simulator that makes the flights",
-  "main": "./dst/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "dev": "nodemon ./src/index.ts",
     "build": "tsc",
@@ -12,6 +12,7 @@
   "author": "Shmuel Robinov",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.0.3",
     "socket.io": "^4.5.2"
   },
   "devDependencies": {

@@ -3,7 +3,7 @@ import FlightView from "../components/flightView/FlightView";
 import TrackView from "./../components/trackView/TrackView";
 import Flight from "../models/Flight.model";
 import { io } from "socket.io-client";
-import config from "../../config.json";
+import config from '../../custom-environment-variables.json';
 import Header from "../components/header/Header";
 
 function HomePage() {
@@ -19,15 +19,18 @@ function HomePage() {
   ]);
 
   useEffect(() => {
-    const serverUrl = `http://localhost:${config.SERVER_PORT}`;
+    const serverUrl = `http://${config.SERVER_HOST}:${config.SERVER_PORT}`;
+    // const serverUrl = `http://${process.env.REACT_APP_SERVER_HOST}:${process.env.REACT_APP_SERVER_PORT}`;
+    console.log(serverUrl);
+
     const socket = io(serverUrl);
 
-    // socket.on("connect", () => {
-    //   console.log("Connected to server");
-    // });
+    
+    socket.on("connect", () => {
+      console.log("Connected to server");
+    });
 
     socket.on("legs-updated", (data: (Flight | null)[]) => {
-      console.log("Legs updated");
       setLegs(data);
     });
   }, []);

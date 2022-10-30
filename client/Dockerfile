@@ -1,9 +1,9 @@
 
 # works for development - try to use a smaller image for production + in prod mode
+# COPY package-lock.json /client
 FROM node:12 as build
 RUN mkdir -p /client
 COPY package*.json /client
-# COPY package-lock.json /client
 COPY tsconfig.json /client
 WORKDIR /client
 RUN npm install
