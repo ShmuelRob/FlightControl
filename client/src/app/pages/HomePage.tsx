@@ -31,6 +31,8 @@ function HomePage() {
     });
 
     socket.on("legs-updated", (data: (Flight | null)[]) => {
+      console.log('updated');
+      
       setLegs(data);
     });
   }, []);

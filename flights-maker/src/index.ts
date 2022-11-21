@@ -4,6 +4,10 @@ import config from './custom-environment-variables.json';
 let idCounter = 0;
 const socket = new Server(config.FLIGHT_MAKER_PORT, { cors: { origin: '*', methods: ['GET'] } });
 
+socket.on('connection', () => { 
+    createFlights();
+});
+
 const setBool = (): boolean => {
     return Math.floor(Math.random() * 100) % 2 === 0;
 }
